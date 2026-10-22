@@ -1,0 +1,262 @@
+# ============================================================
+#  地点
+#  每一局，非固定格子会从这里按 weight 随机抽身份。
+#  每个地点有一组"行动"，行动决定了能抽到哪些标签的事件。
+# ============================================================
+
+# ------------------------------------------------------------ 城镇（固定）
+- id: town
+  name: 石桥镇
+  short: 城镇
+  color: "#8d6e63"
+  desc: 你出生的小镇。灰扑扑的屋顶，一条穿镇而过的河，和永远修不完的石桥。
+  weight: 0
+  actions:
+    - id: work
+      name: 打零工
+      desc: 在河边帮人搬货，或给铁匠打下手。
+      energy: 1
+      tags: [work]
+    - id: gossip
+      name: 打听消息
+      desc: 酒馆里总有人愿意说话，也总有人愿意听。
+      energy: 1
+      tags: [rumor, social]
+    - id: stroll
+      name: 在镇上走走
+      desc: 没什么目的，只是看看。
+      energy: 1
+      tags: [town, social]
+    - id: rest
+      name: 在家待着
+      desc: 把力气省下来。身体会好一点，但这一年什么也不会发生。
+      energy: 1
+      tags: [rest]
+
+# ------------------------------------------------------------ 森林系
+- id: old_woods
+  name: 古林
+  short: 森林
+  color: "#2e7d32"
+  desc: 树比镇子还老。有人说林子深处有路，但没人愿意带路去。
+  weight: 12
+  actions:
+    - id: gather
+      name: 采药拾柴
+      desc: 稳妥的活计，也赚不了大钱。
+      energy: 1
+      tags: [gather, work]
+    - id: delve
+      name: 深入林中
+      desc: 越往里走，听到的声音越少。
+      energy: 2
+      tags: [explore, risk]
+
+- id: dark_forest
+  name: 暗林
+  short: 暗林
+  color: "#1b3b1f"
+  desc: 光到不了树冠下面。这里的东西大半在夜里活动。
+  weight: 8
+  actions:
+    - id: gather
+      name: 采药拾柴
+      energy: 1
+      tags: [gather]
+    - id: delve
+      name: 深入林中
+      energy: 2
+      tags: [explore, risk]
+
+- id: sacred_grove
+  name: 圣林
+  short: 圣林
+  color: "#388e3c"
+  desc: 老辈人说，这片林子是女神种的。砍树的人都没好下场。
+  weight: 6
+  actions:
+    - id: pray
+      name: 静坐
+      desc: 在树下坐一会儿，什么也不做。
+      energy: 1
+      tags: [pray, study]
+    - id: delve
+      name: 循着石板走
+      energy: 2
+      tags: [explore, holy]
+
+# ------------------------------------------------------------ 矿脉系
+- id: iron_mine
+  name: 铁矿山
+  short: 矿山
+  color: "#5d4037"
+  desc: 镇子里一半的活计都在这儿。塌方是常事，工钱也不算少。
+  weight: 12
+  actions:
+    - id: work
+      name: 下坑干活
+      desc: 一天下来，手上全是灰。
+      energy: 1
+      tags: [work, mine]
+    - id: tunnel
+      name: 探废矿道
+      desc: 已经封了的那些巷道里，还剩点东西。
+      energy: 2
+      tags: [risk, mine]
+
+- id: abandoned_mine
+  name: 废矿
+  short: 废矿
+  color: "#3e2723"
+  desc: 二十年前出过事，之后就再没人来这儿干活了。
+  weight: 8
+  actions:
+    - id: scrap
+      name: 捡拾废料
+      energy: 1
+      tags: [work, mine]
+    - id: tunnel
+      name: 深入矿道
+      energy: 2
+      tags: [risk, mine, explore]
+
+# ------------------------------------------------------------ 市集
+- id: bazaar
+  name: 集市
+  short: 集市
+  color: "#ef6c00"
+  desc: 每月开两次，四面八方的行商都来。吵得听不清自己说话。
+  weight: 12
+  actions:
+    - id: trade
+      name: 摆摊做买卖
+      desc: 本钱少的时候，赚得也少。
+      energy: 1
+      tags: [trade, work]
+    - id: listen
+      name: 听行商说话
+      desc: 外面的事，多半是从这里先进来的。
+      energy: 1
+      tags: [rumor]
+
+- id: market_ruin
+  name: 墟市
+  short: 墟市
+  color: "#6d4c41"
+  desc: 一场瘟疫之后，市集再也没恢复过来。剩下几个摊位，卖的东西越来越少。
+  weight: 6
+  actions:
+    - id: trade
+      name: 做点小买卖
+      energy: 1
+      tags: [trade]
+    - id: listen
+      name: 打听旧事
+      energy: 1
+      tags: [rumor, lore]
+
+# ------------------------------------------------------------ 神殿
+- id: chapel
+  name: 白袍教堂
+  short: 神殿
+  color: "#cfd8dc"
+  desc: 镇子里唯一一座石头房子。神父说话很轻，但没人敢不听。
+  weight: 12
+  actions:
+    - id: pray
+      name: 祈祷
+      desc: 跪下来，把心里的事说给谁听。
+      energy: 1
+      tags: [pray]
+    - id: study
+      name: 读教会典籍
+      desc: 书很难读，但总归是书。
+      energy: 1
+      tags: [study, holy]
+
+- id: old_shrine
+  name: 荒废神祠
+  short: 神祠
+  color: "#9e9e9e"
+  desc: 比教堂更早的东西。供的是谁，已经没人说得清了。
+  weight: 6
+  actions:
+    - id: pray
+      name: 献上一炷香
+      energy: 1
+      tags: [pray, lore]
+    - id: study
+      name: 辨认碑文
+      energy: 1
+      tags: [study, lore]
+
+# ------------------------------------------------------------ 荒野
+- id: wilds
+  name: 荒野
+  short: 荒野
+  color: "#827717"
+  desc: 出了镇子往北全是荒的。风大，草硬，没有路。
+  weight: 12
+  actions:
+    - id: hunt
+      name: 打猎
+      desc: 收获看运气，但至少不用看人脸色。
+      energy: 1
+      tags: [hunt, work]
+    - id: camp
+      name: 露宿一夜
+      desc: 夜里生一堆火，离镇子远一点。
+      energy: 2
+      tags: [risk, wild]
+
+- id: swamp
+  name: 泥沼
+  short: 泥沼
+  color: "#4e342e"
+  desc: 踩下去会陷到小腿。空气里有股说不清的甜味，让人想睡。
+  weight: 8
+  actions:
+    - id: ford
+      name: 涉水而过
+      energy: 2
+      tags: [risk, wild]
+    - id: fish
+      name: 捕鱼
+      energy: 1
+      tags: [gather, wild]
+
+# ------------------------------------------------------------ 遗迹
+- id: ruins
+  name: 遗迹
+  short: 遗迹
+  color: "#546e7a"
+  desc: 半截埋在土里的石墙，形状不像这个时代的东西。
+  weight: 10
+  actions:
+    - id: explore
+      name: 探查废墟
+      energy: 2
+      tags: [explore, lore]
+    - id: dig
+      name: 挖掘
+      energy: 2
+      tags: [risk, lore]
+
+# ------------------------------------------------------------ 深渊（固定，终局所在）
+- id: abyss
+  name: 深渊
+  short: 深渊
+  color: "#1a1020"
+  desc: 地面裂开的那道口子。往下看不见底，只有很远处一点红光。
+  weight: 0
+  actions:
+    - id: descend
+      name: 往下爬
+      desc: 越往下，风越小。到最后完全没有风了。
+      energy: 2
+      tags: [abyss, explore]
+    - id: listen
+      name: 站在边上听
+      desc: 有些晚上，下面会传出声音。
+      energy: 1
+      tags: [abyss, lore]

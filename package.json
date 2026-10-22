@@ -1,0 +1,38 @@
+{
+  "name": "bb-game",
+  "version": "0.1.0",
+  "private": true,
+  "description": "轮回 · 人生模拟 Roguelike",
+  "author": "bb",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "content": "tsx scripts/build-content.ts",
+    "dev": "npm run content && electron-vite dev",
+    "build": "npm run content && electron-vite build",
+    "typecheck": "tsc -p tsconfig.web.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "test": "npm run content && vitest run",
+    "sim": "npm run content && tsx scripts/sim.ts",
+    "pack": "npm run build && electron-builder --win --dir",
+    "dist": "npm run build && electron-builder --win",
+    "play": "npm run pack && start \"\" \"release\\win-unpacked\\轮回.exe\""
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "6.1.2",
+    "electron": "44.9.2",
+    "electron-builder": "26.15.3",
+    "electron-vite": "6.0.0",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.5",
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
+  }
+}

@@ -1,0 +1,379 @@
+# ============================================================
+#  第二组事件
+#  目标是让每个标签池有足够的深度，一局 40+ 次触发不会明显重复。
+# ============================================================
+
+# ------------------------------------------------------------ 休息
+- id: e_rest_quiet
+  title: 平静的一年
+  tags: [rest]
+  weight: 30
+  text: "这一年没发生什么。冬天很长，你劈了很多柴。春天来的时候，你把院子扫了一遍。"
+  options:
+    - text: 就这样过
+      result:
+        text: "你感到身体轻松了一些。"
+        effects: [{ hp: 4 }, { attr: { wil: 1 } }]
+    - text: 想点心事
+      result:
+        text: "你在窗边坐了整晚。有些事你不想再提，但它一直在。"
+        effects: [{ attr: { int: 1 } }]
+
+- id: e_rest_dream
+  title: 重复的梦
+  tags: [rest, lore]
+  weight: 12
+  text: "你梦到一个很深的地方。有人在里面叫你的名字，声音像是从水底传上来的。"
+  options:
+    - text: 在梦里走下去
+      check: { attr: wil, dc: 12 }
+      success:
+        text: "你走到了最底下。那里有一扇门，门上刻着七道划痕。"
+        effects: [{ knowledge: k_seven_gate }, { progress: 8 }, { attr: { wil: 1 } }]
+      fail:
+        text: "你醒了，浑身是汗。手背上多了一道划痕，很浅。"
+        effects: [{ hp: -5 }, { progress: 2 }]
+    - text: 强迫自己醒过来
+      result:
+        text: "你睁着眼躺到天亮。"
+        effects: [{ attr: { wil: 1 } }]
+
+# ------------------------------------------------------------ 工作
+- id: e_work_harvest
+  title: 秋收
+  tags: [work, gather]
+  weight: 16
+  text: "今年的麦子长得不好，但镇上每个人都要去割。"
+  options:
+    - text: 拼命干
+      result:
+        text: "你割得比谁都快。晚上吃饭的时候，手抖得拿不住碗。"
+        effects: [{ gold: 25 }, { hp: -5 }, { attr: { str: 1 } }]
+    - text: 帮老人那一块地
+      result:
+        text: "你干完了自己的，又去帮了隔壁。老人硬塞给你两个鸡蛋。"
+        effects: [{ gold: 10 }, { karma: 7 }, { attr: { wil: 1 } }]
+    - text: 找个理由不去
+      result:
+        text: "你躲在家里。镇上的人后来提起来时，语气不太一样了。"
+        effects: [{ karma: -5 }, { hp: 2 }]
+
+- id: e_work_debt
+  title: 欠债的人
+  tags: [work, social]
+  weight: 12
+  text: "工头说这个月的工钱要迟些给。他家也不宽裕，你没说什么。"
+  options:
+    - text: 等等
+      result:
+        text: "钱在冬天之前到了，少了三成。"
+        effects: [{ gold: 20 }, { karma: 3 }]
+    - text: 去讨
+      check: { attr: cha, dc: 11 }
+      success:
+        text: "他嘟囔着把全额给了你。"
+        effects: [{ gold: 35 }]
+      fail:
+        text: "你们在雪地里吵了一架。钱没拿到，关系也没了。"
+        effects: [{ gold: 5 }, { karma: -4 }]
+    - text: "【前世记忆】他拿工钱去赌了，钱永远回不来"
+      requires: [{ knowledge: k_foreman_gambler }]
+      result:
+        text: "你当场要了钱，他脸色很难看。三天后，另一个工人的家被搬空了。"
+        effects: [{ gold: 35 }, { karma: 3 }, { flag: f_foreman_exposed }]
+
+# ------------------------------------------------------------ 矿
+- id: e_mine_stranger
+  title: 矿上的陌生人
+  tags: [mine, rumor]
+  weight: 12
+  text: "一个新来的工人干活很卖力，但他从不下最深的那条巷道。"
+  options:
+    - text: 问他为什么
+      check: { attr: cha, dc: 12 }
+      success:
+        text: "他犹豫了很久，说：'那下面通着别的地方。'然后就不肯再说了。"
+        effects: [{ knowledge: k_mine_deep_passage }, { progress: 6 }]
+      fail:
+        text: "'不关你的事。'他把铁镐扛上肩走了。"
+        effects: []
+    - text: 自己盯着他怎么干活
+      check: { attr: int, dc: 11 }
+      success:
+        text: "你发现他每次经过某个岔口都要停顿一下。你去看了那个岔口。"
+        effects: [{ knowledge: k_mine_deep_passage }, { progress: 5 }, { attr: { int: 1 } }]
+      fail:
+        text: "他察觉到你在看，第二天就没来了。"
+        effects: []
+
+- id: e_mine_gold_vein
+  title: 金砂
+  tags: [mine, work]
+  weight: 8
+  once: true
+  text: "你凿开一块石头，里面闪着细碎的光。是金砂。"
+  options:
+    - text: 自己偷偷收起来
+      check: { attr: agi, dc: 10 }
+      success:
+        text: "你把它们藏在鞋底带了出去。换了整整半年的工钱。"
+        effects: [{ gold: 150 }, { karma: -4 }]
+      fail:
+        text: "监工看见了。金砂被收走，你被扣了三个月的工钱。"
+        effects: [{ gold: -60 }, { karma: -3 }]
+    - text: 报给工头
+      result:
+        text: "工头看了很久，最后给了你一笔赏钱。矿上多了一条新巷道。"
+        effects: [{ gold: 60 }, { karma: 6 }]
+
+# ------------------------------------------------------------ 森林
+- id: e_woods_herbs
+  title: 药草
+  tags: [gather]
+  weight: 16
+  text: "你在树根后面发现一片没被采过的药草。镇上的药铺收这个。"
+  options:
+    - text: 全采了
+      result:
+        text: "你连根都拔了。药铺老板娘看了一眼，没说什么。"
+        effects: [{ gold: 40 }, { karma: -2 }]
+    - text: 只采成熟的，留根
+      result:
+        text: "老板娘多给了你几个铜板，说'明年还长'。"
+        effects: [{ gold: 30 }, { karma: 3 }, { attr: { int: 1 } }]
+
+- id: e_woods_trap
+  title: 捕兽夹
+  tags: [explore, wild]
+  weight: 12
+  text: "一只狐狸被夹住了，铁齿咬进后腿。它没有叫，只是看着你。"
+  options:
+    - text: 掰开夹子放走它
+      check: { attr: str, dc: 11 }
+      success:
+        text: "夹子松开了。它一瘸一拐地跑进林子里。"
+        effects: [{ karma: 8 }, { attr: { str: 1 } }]
+      fail:
+        text: "夹子太紧。你弄了很久，最后它还是不动了。"
+        effects: [{ hp: -4 }, { karma: 3 }]
+    - text: 拿走皮
+      result:
+        text: "皮能卖钱。处理的时候你尽量不去看它的眼睛。"
+        effects: [{ gold: 45 }, { karma: -7 }]
+    - text: 走开
+      result:
+        text: "你走开了。第二天回来，夹子是空的。"
+        effects: []
+
+# ------------------------------------------------------------ 集市
+- id: e_trade_scales
+  title: 秤
+  tags: [trade]
+  weight: 14
+  text: "你的秤被人动过手脚。称一斤，实际只有八两。"
+  options:
+    - text: 调回来
+      result:
+        text: "多出来的钱可以买不少东西，但你把它退回去了。"
+        effects: [{ gold: -20 }, { karma: 6 }]
+    - text: 继续用
+      result:
+        text: "生意好了很多。没人发现，或者说没人当面发现。"
+        effects: [{ gold: 60 }, { karma: -8 }]
+    - text: 用它去骗那个南边的行商
+      requires: [{ karmaMax: -10 }]
+      result:
+        text: "他数了三次，然后抬头看你。你笑着点头。"
+        effects: [{ gold: 90 }, { karma: -6 }]
+
+- id: e_trade_old_books
+  title: 旧书摊
+  tags: [trade, lore]
+  weight: 10
+  text: "一个老头在地上铺了块布，摆着几本发霉的书。他说这些是从废墟里挖出来的。"
+  options:
+    - text: 全买下来
+      requires: [{ goldMin: 30 }]
+      result:
+        text: "你翻了一夜。大部分是废纸，但有一页画的正是你在遗迹里看到的符号。"
+        effects: [{ gold: -30 }, { knowledge: k_ruin_symbols }, { progress: 7 }, { attr: { int: 1 } }]
+    - text: 只买最厚的那本
+      requires: [{ goldMin: 10 }]
+      result:
+        text: "书里夹着一张纸。上面只有一句话：'别下去。'"
+        effects: [{ gold: -10 }, { knowledge: k_warning_note }, { progress: 4 }]
+    - text: 不感兴趣
+
+# ------------------------------------------------------------ 祈祷
+- id: e_pray_famine
+  title: 荒年
+  tags: [pray, wild]
+  weight: 10
+  text: "今年收成不好。教堂门口排着队，神父的粮仓也快空了。"
+  options:
+    - text: 把积蓄捐出去
+      requires: [{ goldMin: 40 }]
+      result:
+        text: "你没留下多少。那年冬天很难熬，但镇子里没有人饿死。"
+        effects: [{ gold: -40 }, { karma: 15 }, { flag: f_famine_survived }]
+    - text: 留下来帮忙
+      result:
+        text: "你在教堂教孩子们认字，分了三个月的粥。"
+        effects: [{ karma: 10 }, { attr: { cha: 1, int: 1 } }]
+    - text: 趁粮价高卖点东西
+      result:
+        text: "你赚了不少。有人在教堂门口看着你，你怎么也忘不掉那个眼神。"
+        effects: [{ gold: 70 }, { karma: -10 }]
+
+- id: e_pray_vision
+  title: 异象
+  tags: [pray, holy]
+  weight: 8
+  text: "你跪下去的时候，光柱里出现了人影。很多个人影，轮廓都一样。"
+  options:
+    - text: 抬起头看
+      check: { attr: wil, dc: 13 }
+      success:
+        text: "那都是你。一次又一次，倒在同一个地方。最后一帧里，有一个人站了起来。"
+        effects: [{ knowledge: k_cycles_truth }, { progress: 14 }, { attr: { wil: 2 } }]
+      fail:
+        text: "光太刺眼。你昏了过去，醒来时在教堂的地板上。"
+        effects: [{ hp: -8 }, { progress: 4 }]
+    - text: 闭上眼，继续念
+      result:
+        text: "人影散了。你念完了整段祈祷。"
+        effects: [{ attr: { wil: 1 } }, { progress: 3 }]
+
+# ------------------------------------------------------------ 荒野
+- id: e_wilds_travelers
+  title: 逃难的人
+  tags: [wild, social]
+  weight: 12
+  text: "一家人拖着车从北边过来。孩子瘦得只剩骨头，车上的东西已经没什么了。"
+  options:
+    - text: 分给他们水和干粮
+      result:
+        text: "他们不停地鞠躬。走的时候，那个母亲把一枚旧铜钱塞进你手里。"
+        effects: [{ karma: 9 }, { attr: { wil: 1 } }, { flag: f_copper_coin }]
+    - text: 指个路
+      result:
+        text: "你告诉他们往南走有镇子。他们走了。"
+        effects: [{ karma: 2 }]
+    - text: 抢他们的车
+      check: { attr: str, dc: 10 }
+      success:
+        text: "车上还有些值钱的东西。那家人看着你，一句话都没说。"
+        effects: [{ gold: 60 }, { karma: -18 }]
+      fail:
+        text: "男人拼了命反抗。你被打出了血，什么也没抢到。"
+        effects: [{ hp: -12 }, { karma: -10 }]
+
+- id: e_wilds_storm
+  title: 沙暴
+  tags: [wild, risk]
+  weight: 12
+  text: "风起来了，天变成土黄色。你很快看不见路。"
+  options:
+    - text: 找个低洼处躲
+      check: { attr: int, dc: 11 }
+      success:
+        text: "你找到一个塌陷的地坑。风刮了一整夜，你没事。"
+        effects: [{ attr: { int: 1 } }]
+      fail:
+        text: "你以为那是洼地，其实是条沟。第二天你从沙子里爬出来。"
+        effects: [{ hp: -14 }]
+    - text: 逆着风往前走
+      check: { attr: wil, dc: 14 }
+      success:
+        text: "你走了整整一夜。天亮时风停了，你面前是一片完全陌生的地方。"
+        effects: [{ attr: { wil: 2 } }, { progress: 6 }]
+      fail:
+        text: "你走着走着就迷失了方向。等被人找到，已经过了三天。"
+        effects: [{ hp: -22 }]
+
+# ------------------------------------------------------------ 城镇社交
+- id: e_town_wedding
+  title: 婚礼
+  tags: [social, town]
+  weight: 12
+  text: "镇上有人在办婚礼。你不算熟，但请帖送到了。"
+  options:
+    - text: 去，随份子
+      requires: [{ goldMin: 20 }]
+      result:
+        text: "酒喝到后半夜。你和一个从没见过的人聊了很久。"
+        effects: [{ gold: -20 }, { karma: 4 }, { attr: { cha: 1 } }]
+    - text: 不去
+      result:
+        text: "你在家里坐到很晚。隔壁传来的笑声很响。"
+        effects: [{ attr: { wil: 1 } }]
+    - text: 去，但空手
+      result:
+        text: "有人当面问你怎么没带东西。你说忘了。"
+        effects: [{ karma: -2 }, { attr: { cha: 1 } }]
+
+- id: e_town_bully
+  title: 镇上的混混
+  tags: [social, town]
+  weight: 12
+  text: "三个人围着一个卖花的小女孩。领头的那个你认得，他哥哥在镇上有点势力。"
+  options:
+    - text: 站出来
+      check: { attr: str, dc: 13 }
+      success:
+        text: "你放倒了一个，另外两个跑了。小女孩把花全塞给了你。"
+        effects: [{ karma: 12 }, { attr: { str: 2 } }, { flag: f_bully_beaten }]
+      fail:
+        text: "你被打得很惨。但那个女孩跑掉了。"
+        effects: [{ hp: -20 }, { karma: 10 }, { attr: { wil: 1 } }]
+    - text: 去叫守卫
+      check: { attr: cha, dc: 10 }
+      success:
+        text: "守卫来了。混混散了，但走之前记住了你的脸。"
+        effects: [{ karma: 7 }]
+      fail:
+        text: "守卫懒得管。你回来的时候，人和花都不见了。"
+        effects: [{ karma: -1 }]
+    - text: 走开
+      result:
+        text: "你听见身后有东西摔碎的声音。"
+        effects: [{ karma: -6 }]
+
+# ------------------------------------------------------------ 遗迹
+- id: e_ruins_altar
+  title: 石台
+  tags: [lore, explore]
+  weight: 12
+  text: "废墟中央有一座石台，台面上有一道深深的手印，比你的手大两圈。"
+  options:
+    - text: 把手放上去
+      check: { attr: wil, dc: 14 }
+      success:
+        text: "石台是温的。你看见一段记忆：一个女人被锁链缠住，她抬头看你，说'你终于来了'。"
+        effects: [{ knowledge: k_goddess_chained }, { progress: 16 }, { attr: { wil: 1 } }]
+      fail:
+        text: "你碰到的瞬间，整条手臂都麻了。三天抬不起来。"
+        effects: [{ hp: -16 }, { progress: 4 }]
+    - text: 记下刻纹，不碰
+      result:
+        text: "你蹲着描了很久。回去路上一直在想那个手印的尺寸。"
+        effects: [{ attr: { int: 2 } }, { progress: 6 }]
+
+- id: e_ruins_bones
+  title: 白骨
+  tags: [dig, risk]
+  weight: 10
+  text: "你挖到一层白骨。骨头上没有伤痕，摆得很整齐，像是有人把尸体摆好才走。"
+  options:
+    - text: 把他们埋好
+      result:
+        text: "你花了整整一天。土盖上去的时候，风停了一下。"
+        effects: [{ karma: 8 }, { attr: { wil: 1 } }, { progress: 5 }]
+    - text: 翻找陪葬品
+      check: { attr: agi, dc: 11 }
+      success:
+        text: "一柄锈得不成样的短剑，但剑柄上的纹路还是清楚的。"
+        effects: [{ gold: 70 }, { knowledge: k_sword_crest }, { karma: -4 }]
+      fail:
+        text: "你碰倒了一根支撑的木头。塌下来的土埋住了半条腿，你扒了很久才出来。"
+        effects: [{ hp: -18 }, { karma: -3 }]

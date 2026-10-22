@@ -1,0 +1,113 @@
+# ============================================================
+#  属性定义
+#  改这里就能重设整套属性系统，不需要碰任何代码。
+#  改完跑 `npm run content` 会重新校验并生成类型。
+#
+#  kind:
+#    stat     —— 五维，参与检定，成长慢
+#    resource —— 资源，日常消耗
+#    karma    —— 善恶，必须有且只有一个
+# ============================================================
+
+# ------------------------------------------------------------ 五维
+attributes:
+  - id: str
+    name: 力量
+    abbrev: 力
+    kind: stat
+    start: 5
+    max: 20
+    color: "#c0392b"
+    desc: 搬运、搏斗、强行突破。
+
+  - id: agi
+    name: 敏捷
+    abbrev: 敏
+    kind: stat
+    start: 5
+    max: 20
+    color: "#27ae60"
+    desc: 闪避、偷窃、逃跑、攀爬。
+
+  - id: int
+    name: 智力
+    abbrev: 智
+    kind: stat
+    start: 5
+    max: 20
+    color: "#2980b9"
+    desc: 学问、解谜、识破谎言。
+
+  - id: cha
+    name: 魅力
+    abbrev: 魅
+    kind: stat
+    start: 5
+    max: 20
+    color: "#8e44ad"
+    desc: 交涉、哄骗、讨人喜欢。
+
+  - id: wil
+    name: 意志
+    abbrev: 志
+    kind: stat
+    start: 5
+    max: 20
+    color: "#d4a017"
+    desc: 抵抗恐惧、忍受痛苦、守住本心。
+
+# ------------------------------------------------------------ 资源
+resources:
+  - id: hp
+    name: 生命
+    abbrev: HP
+    kind: resource
+    start: 100
+    max: 100
+    color: "#e74c3c"
+    desc: 归零即死。每周期结束时下降，年龄越大越快。
+
+  - id: energy
+    name: 体力
+    abbrev: 体
+    kind: resource
+    start: 2
+    max: 2
+    color: "#f39c12"
+    desc: 每个周期自动回满。移动与部分事件消耗。
+
+  - id: gold
+    name: 金钱
+    abbrev: 金
+    kind: resource
+    start: 20
+    max: 99999
+    color: "#f1c40f"
+    desc: 货币。
+
+# ------------------------------------------------------------ 善恶
+karma:
+  id: karma
+  name: 善恶
+  abbrev: 善
+  kind: karma
+  start: 0
+  min: -100
+  max: 100
+  color: "#ecf0f1"
+  desc: 正为善，负为恶。死亡时按比例带入下一世。
+  # 分档：数值 >= at 时进入这一档，从低到高匹配。
+  # 0 必须是"中立"，所以中立那一档的阈值是 0。
+  tiers:
+    - at: -100
+      name: 魔头
+    - at: -40
+      name: 恶人
+    - at: -15
+      name: 心存芥蒂
+    - at: 0
+      name: 中立
+    - at: 25
+      name: 善人
+    - at: 65
+      name: 圣人

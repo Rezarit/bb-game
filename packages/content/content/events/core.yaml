@@ -1,0 +1,365 @@
+# ============================================================
+#  事件
+#  每个事件挂在标签上，行动决定能抽到哪些标签的事件。
+#
+#  写法速查：
+#    tags     事件属于哪些标签池
+#    weight   权重
+#    once     一局内只触发一次
+#    unique   整个存档只触发一次（跨周目）
+#    requires 触发条件
+#    options  选项；有 check 就是检定，必须同时写 success 和 fail
+#
+#  效果写法：
+#    { attr: { str: 1 } }   改属性
+#    { hp: -5 }             改生命
+#    { karma: 5 }           改善恶
+#    { flag: "x" }          记一个标记
+#    { knowledge: "x" }     获得一条跨周目知识
+#    { progress: 10 }       推进宿命
+#    { text: "..." }        追加叙述
+# ============================================================
+
+# ------------------------------------------------------------ 打零工
+- id: e_work_river
+  title: 河边的活
+  tags: [work]
+  weight: 20
+  text: "码头上有人在喊人搬货。麻袋很沉，河水冷得像刀子。"
+  options:
+    - text: 干到天黑
+      result:
+        text: "手掌磨破了。工头数了三十枚铜板给你，一枚不多。"
+        effects: [{ gold: 30 }, { hp: -3 }, { attr: { str: 1 } }]
+    - text: 只干半天，去读书
+      result:
+        text: "你放下麻袋走了。工头骂了一句，但没追上来。"
+        effects: [{ gold: 12 }, { attr: { int: 1 } }]
+
+- id: e_work_smith
+  title: 铁匠铺
+  tags: [work]
+  weight: 14
+  once: true
+  text: "铁匠没抬头，只说：'手别抖。'"
+  options:
+    - text: 蹲下来认真地学
+      check: { attr: agi, dc: 10 }
+      success:
+        text: "你打出第一块像样的铁片。铁匠看了它很久，才说'还行'。"
+        effects: [{ gold: 40 }, { attr: { str: 2 } }, { knowledge: k_smith_secret }]
+      fail:
+        text: "铁片裂了。铁匠把废料推回炉子，没再说什么。"
+        effects: [{ gold: 10 }, { hp: -4 }]
+    - text: 太累了，换个活
+      result:
+        text: "你在门口站了一会儿，走了。"
+        effects: []
+
+# ------------------------------------------------------------ 矿
+- id: e_mine_collapse
+  title: 塌方
+  tags: [mine]
+  weight: 18
+  text: "头顶传来一声闷响，接着是碎石落地的声音。有人喊了句什么，然后是一声惨叫。"
+  options:
+    - text: 冲进去救人
+      check: { attr: str, dc: 12 }
+      success:
+        text: "你扒开最后一层石头，里面的人在哭。他抓着你的手不放。"
+        effects: [{ karma: 12 }, { attr: { str: 1, wil: 1 } }, { flag: f_saved_miner }]
+      fail:
+        text: "你搬不动。等其他人赶到，那里已经安静了。"
+        effects: [{ hp: -15 }, { karma: 5 }, { attr: { wil: 1 } }]
+    - text: 先跑出去
+      result:
+        text: "你跑得很快。身后传来第二声闷响。"
+        effects: [{ karma: -6 }, { attr: { agi: 1 } }]
+    - text: "【前世记忆】西侧那条巷道早就空了，塌的是东侧"
+      requires: [{ knowledge: k_mine_west }]
+      result:
+        text: "你从西侧绕了进去。等他们反应过来，你已经把三个人拉出来了。"
+        effects: [{ karma: 20 }, { attr: { wil: 2 } }, { progress: 5 }]
+
+- id: e_mine_night
+  title: 夜里的矿道
+  tags: [mine, risk]
+  weight: 10
+  text: "你举着灯往里走。墙上有一道新鲜的抓痕，比你的手大得多。"
+  options:
+    - text: 继续往里
+      check: { attr: wil, dc: 11 }
+      success:
+        text: "尽头是一间塌了一半的屋子。里面有箱子，箱子里是铁矿。"
+        effects: [{ gold: 80 }, { progress: 4 }]
+      fail:
+        text: "灯灭了。你在黑暗里跑了很久才找到出口，手掌全是血。"
+        effects: [{ hp: -14 }]
+    - text: 退出去
+
+# ------------------------------------------------------------ 森林
+- id: e_woods_child
+  title: 林中的孩子
+  tags: [gather, explore]
+  weight: 16
+  text: "树根旁蹲着个孩子，脚踝肿得厉害。他抬头看你，没哭，也不说话。"
+  options:
+    - text: 送他回镇子
+      check: { attr: wil, dc: 11 }
+      success:
+        text: "天亮前你们到了镇口。他母亲抱着他跪下，被你拉住了。"
+        effects: [{ karma: 10 }, { attr: { wil: 1 } }, { knowledge: k_plague_village }]
+      fail:
+        text: "半路上他发起抖来。等你找到人帮忙，他已经没了。"
+        effects: [{ hp: -6 }, { karma: 4 }, { attr: { wil: 1 } }]
+    - text: 装作没看见
+      result:
+        text: "你走过去了。身后的哭声很久才断。"
+        effects: [{ karma: -5 }]
+    - text: "【前世记忆】他三天后会死在镇口，因为村里正在流行热病"
+      requires: [{ knowledge: k_plague_village }]
+      result:
+        text: "你把他背回镇子，告诉神父该做什么。三天后，镇子里没有一个人发烧。"
+        effects: [{ karma: 15 }, { attr: { int: 1, wil: 1 } }, { progress: 8 }, { flag: f_plague_stopped }]
+
+- id: e_woods_voice
+  title: 林子里的声音
+  tags: [explore, risk]
+  weight: 12
+  text: "有人在你身后叫你的名字。声音很熟悉，但你想不起是谁。"
+  options:
+    - text: 回头
+      check: { attr: wil, dc: 13 }
+      success:
+        text: "你身后什么都没有，只有风。但你突然想起了一句很久以前听过的话。"
+        effects: [{ attr: { wil: 1 } }, { knowledge: k_voice_warning }, { progress: 5 }]
+      fail:
+        text: "你转过身，然后什么都不记得了。醒来时天已经黑了，你躺在林子外面。"
+        effects: [{ hp: -10 }, { gold: -20 }]
+    - text: 不回头，继续走
+      result:
+        text: "声音跟了你很久，然后停了。"
+        effects: [{ attr: { int: 1 } }]
+
+# ------------------------------------------------------------ 集市
+- id: e_market_merchant
+  title: 行商
+  tags: [trade, rumor]
+  weight: 18
+  text: "一个戴斗笠的人在摆摊，卖的东西你一样都认不出来。他说：'来看看，都是好东西。'"
+  options:
+    - text: 买下那枚黑色的石头
+      requires: [{ goldMin: 40 }]
+      result:
+        text: "石头摸起来是温的。行商收钱的时候笑了一下，那个笑容不太对。"
+        effects: [{ gold: -40 }, { knowledge: k_black_stone }, { progress: 6 }]
+    - text: 和他聊外面的世界
+      check: { attr: cha, dc: 10 }
+      success:
+        text: "他讲了很久。你记住了'深渊'这个词，还有他说到这个词时的表情。"
+        effects: [{ attr: { cha: 1, int: 1 } }, { knowledge: k_abyss_name }]
+      fail:
+        text: "他察觉到你在打听，收起了摊子。"
+        effects: []
+    - text: 走开
+
+- id: e_market_thief
+  title: 小偷
+  tags: [trade, social]
+  weight: 14
+  text: "你在人群里摸了一下口袋，空的。前面有个瘦小的背影正在拐进巷子。"
+  options:
+    - text: 追上去
+      check: { attr: agi, dc: 12 }
+      success:
+        text: "你按住了他。他比你小很多，把钱包还回来时手在抖。"
+        effects: [{ attr: { agi: 1 } }, { karma: 3 }]
+      fail:
+        text: "巷子太窄，你撞翻了一筐鱼。钱包没了，赔了钱。"
+        effects: [{ gold: -15 }, { hp: -4 }]
+    - text: 算了
+      result:
+        text: "你摸了摸空口袋，回家了。"
+        effects: [{ gold: -20 }]
+
+# ------------------------------------------------------------ 祈祷 / 教会
+- id: e_chapel_confess
+  title: 告解
+  tags: [pray]
+  weight: 16
+  text: "神父隔着木格看也不看地说：'说吧。'"
+  options:
+    - text: 说真话
+      result:
+        text: "你说完，他沉默了很久，然后说：'去吧，别再这样了。'走出教堂时，你觉得轻了一点。"
+        effects: [{ attr: { wil: 2 } }, { karma: 3 }]
+    - text: 编一套说辞
+      check: { attr: cha, dc: 11 }
+      success:
+        text: "神父点点头，好像信了。你也差点信了。"
+        effects: [{ attr: { cha: 1 } }]
+      fail:
+        text: "神父终于转过头看你。'孩子，'他说，'你在骗谁？'"
+        effects: [{ karma: -3 }, { attr: { wil: -1 } }]
+
+- id: e_chapel_library
+  title: 教会典籍
+  tags: [study, holy]
+  weight: 14
+  text: "一本没有书名的厚书，纸是羊皮做的，边角被翻烂了。"
+  options:
+    - text: 一页页读下去
+      check: { attr: int, dc: 12 }
+      success:
+        text: "你在第三章找到了一段被划掉的话。划掉它的人手很稳。"
+        effects: [{ attr: { int: 2 } }, { knowledge: k_goddess_pact }, { progress: 8 }]
+      fail:
+        text: "读到第五页你就睡着了。醒来时书已经合上，不知道是谁合上的。"
+        effects: [{ attr: { int: 1 } }]
+    - text: 只看看图
+      result:
+        text: "插图里有一个女人，被七道锁链锁在很深的地方。"
+        effects: [{ knowledge: k_seven_chains }, { progress: 3 }]
+
+# ------------------------------------------------------------ 荒野
+- id: e_wilds_wolf
+  title: 荒野的狼
+  tags: [hunt, wild]
+  weight: 16
+  text: "一头灰狼堵在坡上，瘦得肋骨根根分明。它没有让路的意思。"
+  options:
+    - text: 正面搏斗
+      check: { attr: str, dc: 12 }
+      success:
+        text: "你按住它的喉咙，直到它不动。皮能卖不少钱。"
+        effects: [{ gold: 50 }, { attr: { str: 2 } }, { hp: -8 }]
+      fail:
+        text: "它咬住了你的小臂。你甩开它跑了，血滴了一路。"
+        effects: [{ hp: -18 }]
+    - text: 把干粮扔过去
+      requires: [{ goldMin: 5 }]
+      result:
+        text: "它闻了闻，叼走了。走之前回头看了你一眼。"
+        effects: [{ gold: -5 }, { karma: 4 }, { attr: { wil: 1 } }]
+
+- id: e_wilds_camp
+  title: 火堆旁的梦
+  tags: [risk, wild]
+  weight: 12
+  text: "你在荒野生了一堆火。半夜醒来时，火已经灭了，但你不冷。"
+  options:
+    - text: 坐着等天亮
+      check: { attr: wil, dc: 12 }
+      success:
+        text: "天边泛白的时候，你听见有人在远处唱歌。歌词你没听懂，但旋律记住了。"
+        effects: [{ attr: { wil: 1 } }, { knowledge: k_old_song }, { progress: 6 }]
+      fail:
+        text: "你在黑暗里坐了一夜，什么也没等到。回镇子的时候发起了烧。"
+        effects: [{ hp: -10 }]
+    - text: 重新生火
+      result:
+        text: "火又烧起来了。你盯着火看到天亮。"
+        effects: [{ energy: -1 }]
+
+# ------------------------------------------------------------ 遗迹
+- id: e_ruins_wall
+  title: 石墙
+  tags: [explore, lore]
+  weight: 16
+  text: "塌了一半的石墙上刻满了字，但你在镇上学的那套字一个都对不上。"
+  options:
+    - text: 硬记下来，回去慢慢想
+      check: { attr: int, dc: 11 }
+      success:
+        text: "你在夜里突然想起其中一行。它写的是：'第七次，她还是会死。'"
+        effects: [{ attr: { int: 2 } }, { knowledge: k_seventh_time }, { progress: 10 }]
+      fail:
+        text: "你记住了形状，忘了顺序。第二天就全忘了。"
+        effects: []
+    - text: 找找有没有能带走的东西
+      check: { attr: agi, dc: 10 }
+      success:
+        text: "石头缝里有个铁盒，里面是一枚磨损的戒指。"
+        effects: [{ gold: 60 }, { flag: f_ring }]
+      fail:
+        text: "石墙塌了一角，你被砸到了腿。"
+        effects: [{ hp: -12 }]
+
+- id: e_ruins_dig
+  title: 地下的空洞
+  tags: [risk, lore]
+  weight: 12
+  text: "你刨开土层，下面是个空洞。有风从里面吹上来，带着铁锈味。"
+  options:
+    - text: 下去看看
+      check: { attr: wil, dc: 13 }
+      success:
+        text: "底下是一段楼梯，一直往下。你走了很久，直到听见水声，才退回地面。"
+        effects: [{ progress: 12 }, { attr: { wil: 2 } }, { knowledge: k_deep_stairs }]
+      fail:
+        text: "你在里面迷了路。出来时天已经黑了两天。"
+        effects: [{ hp: -20 }, { attr: { wil: 1 } }]
+    - text: 把洞填上
+      result:
+        text: "你填了很久，风停了。"
+        effects: [{ karma: 2 }]
+
+# ------------------------------------------------------------ 深渊大门
+- id: e_abyss_gate
+  title: 深渊的入口
+  tags: [explore, abyss]
+  weight: 30
+  text: "荒野尽头的地面裂开一道口子。往下看不见底，只有很远处一点微弱的红光。"
+  options:
+    - text: 顺着裂缝往下爬
+      check: { attr: wil, dc: 13 }
+      success:
+        text: "你爬了很久。洞壁上有一行字，是被人用指甲刻进去的，还带着血。"
+        effects: [{ progress: 15 }, { knowledge: k_abyss_wall }, { attr: { wil: 1 } }]
+      fail:
+        text: "你滑了下去，摔在一块突出的岩石上。爬回来用了一整天。"
+        effects: [{ hp: -22 }]
+    - text: 站在上面看一会儿
+      result:
+        text: "你站了很久。风声从下面传上来，像是有人在很远的地方呼吸。"
+        effects: [{ progress: 3 }]
+    - text: 转身离开
+      result:
+        text: "你往回走。走到一半，还是回头看了一眼。"
+        effects: []
+
+# ------------------------------------------------------------ 通用社交
+- id: e_social_old_man
+  title: 老猎人
+  tags: [social, rumor]
+  weight: 12
+  once: true
+  text: "酒馆角落坐着一个老人，面前摆着一杯没动过的酒。他看着你，像是在等谁。"
+  options:
+    - text: 坐下来陪他喝
+      result:
+        text: "他讲了一晚上从前的事。临走时他说：'你要是下深渊，记得带灯。还有——别信上面那个声音。'"
+        effects: [{ karma: 3 }, { knowledge: k_abyss_voice }, { progress: 5 }]
+    - text: 打个招呼就走
+      result:
+        text: "他点点头，又低下头去。"
+        effects: []
+
+- id: e_social_child
+  title: 镇上的孩子
+  tags: [social, town]
+  weight: 14
+  text: "几个孩子在追一只受伤的鸟。鸟飞不起来，在地上打转。"
+  options:
+    - text: 把鸟护起来
+      result:
+        text: "孩子们不高兴地散了。你捧着鸟，它的心跳得很快。放走的时候它没回头。"
+        effects: [{ karma: 6 }, { attr: { wil: 1 } }]
+    - text: 和他们一起扔石头
+      result:
+        text: "石头扔完了。鸟不动了。有个孩子笑得很开心。"
+        effects: [{ karma: -8 }, { attr: { str: 1 } }]
+    - text: 走过去，什么也不说
+      result:
+        text: "孩子们的石头停了。你走了。"
+        effects: []

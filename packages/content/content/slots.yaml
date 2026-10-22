@@ -1,0 +1,53 @@
+# ============================================================
+#  地图
+#  7 个固定格子，位置不变；每一局每个格子随机一个地点身份。
+#
+#  设计意图：
+#    - 城镇（home）在中心，只能通往 4 个方向
+#    - 深渊（abyss）在最北，只能从荒野（wilds）过去
+#    - 想要深度探索，必须走远；体力是真实成本
+# ============================================================
+
+slots:
+  # 中心：出生地
+  - id: home
+    x: 50
+    y: 52
+    fixedLocation: town
+    edges: [wood_s, mine_s, market_w, temple_w]
+
+  # 东侧：森林一线（越往东北越危险）
+  - id: wood_s
+    x: 76
+    y: 70
+    edges: [home, wild_e]
+
+  - id: wild_e
+    x: 84
+    y: 38
+    edges: [wood_s, abyss]
+
+  # 南侧：矿脉
+  - id: mine_s
+    x: 50
+    y: 84
+    edges: [home, market_w]
+
+  # 西侧：市集
+  - id: market_w
+    x: 18
+    y: 66
+    edges: [home, mine_s, temple_w]
+
+  # 西北：神殿
+  - id: temple_w
+    x: 16
+    y: 26
+    edges: [home, market_w, abyss]
+
+  # 正北：深渊（终局）
+  - id: abyss
+    x: 50
+    y: 8
+    fixedLocation: abyss
+    edges: [wild_e, temple_w]
